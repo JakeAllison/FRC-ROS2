@@ -11,7 +11,7 @@ Autonomous and Swerve Simulation: https://youtu.be/OrnWRP20IEY
 
 ## Setup
 
-Setup is fairly simple. You will need a computer with Ubuntu 18.04 installed. 18.04 was chosen because that was the the latest version of Ubuntu that is officially supported on the Jetson TX2. This package is intended to be used on a Jetson, however, you should be able to run it on a Raspberry Pi, or some other single board computer. You will need to use another installation method to get that working.
+Setup is fairly simple. You will need a computer with Ubuntu 18.04 installed. 18.04 was chosen because that was the the latest version of Ubuntu that is officially supported on the Jetson TX2. This package is intended to be used on a Jetson TX2, however, you should be able to run it on a Jetson Nano, Raspberry Pi, or some other single board computer. You will need to use another installation method to get that working.
 
 ### 1. Install Ubuntu on Your Computer
 
@@ -37,7 +37,7 @@ This repo is designed to be used with Jetpack 4.6 (rev 3), but other versions sh
 
 ```
 cd ~/Documents/FRC-ROS2
-dpkg -i ./sdkmanager_1.6.1-8175_amd64.deb
+dpkg -i ./other_installs/sdkmanager_1.6.1-8175_amd64.deb
 ```
 
 You can follow the guide (NVidia Developer membership required): https://docs.nvidia.com/sdk-manager/install-with-sdkm-jetson/index.html. At a minimum, you will want follow directions to flash the Jetson with a new OS. Installing anything else on either the host computer or the Jetson is optional.
@@ -49,6 +49,7 @@ Follow the steps above to install on your computer. This process is identical to
 ### 5. Make Updates When Needed
 
 If you make changes to the source code, you will need to update the files from the location where you downloaded FRC-ROS to your Catkin workspace. Open a terminal and put the following command to bring up the simulation:
+
 ```
 cd ~/Documents/FRC-ROS2
 ./Update.sh
