@@ -8,8 +8,10 @@ is_jetson=false
 build_realsense_from_source=false
 
 # For testing, only runs selected parts of the script
-install_ros=true
-install_realsense=true
+install_ros=false
+uninstall_ros=true
+install_realsense=false
+uninstall_realsense=false
 
 # Get Ubuntu Distro
 release=$(lsb_release -cs)  # Get codename
@@ -25,7 +27,17 @@ else
 	echo "Device is not a Jetson."
 fi
 
+if [ $install_ros == true ]; then
+	echo "Will install ROS."
+fi
 
+if [ $install_realsense == true  ]; then
+	echo "Will install realsense."
+fi
+
+if [ $build_realsense_from_source == true  ]; then
+	echo "Will build realsense from source."
+fi
 
 # Import ROS config
 source ros.config
@@ -44,8 +56,15 @@ if [ $release == "focal" ]; then
        echo "OS is Ubuntu 20.04. Using ROS Galactic."
        ros_distro="galactic"
 elif [ $release == "bionic" ]; then
-       echo "OS is Ubuntu 18.04. Using ROS Dashing."
-       ros_distro="dashing"
+	
+	if false; then
+		echo "OS is Ubuntu 18.04. Using ROS Eloquent."
+		ros_distro="eloquent"
+	else
+		echo "OS is Ubuntu 18.04. Using ROS Dashing."
+		ros_distro="dashing"
+	fi
+
 else
        echo "OS is not a compatible version. Exiting."
        exit 1
@@ -57,7 +76,7 @@ fi
 
 
 
-if [ false ]; then
+if [  $install_ros == true  ]; then
 
 	#locale  # check for UTF-8
 	sudo apt update && sudo apt install locales -y
@@ -87,10 +106,16 @@ if [ false ]; then
 	fi
 
 	sudo apt install ${ros_install} -y
-	sudo apt install python-pip rsync python-rosdep python3-colcon-common-extensions git -y
+
+	sudo apt install -y python3-pip
+	pip3 install -U argcomplete
+
+	# Additional stuff
+	sudo apt install -y rsync python-rosdep python3-colcon-common-extensions git
 	sudo rosdep init
 	rosdep update
 
+	
 	# Check ~/.bashrc for sourcing
 
 	if grep -q "source /opt/ros/${ros_distro}/setup.bash$" ~/.bashrc; then
@@ -128,71 +153,32 @@ if [ false ]; then
 	printenv | grep -i ROS_LOCALHOST_ONLY
 	printenv | grep -i ROS_PYTHON_VERSION
 
-
-
+elif [ $uninstall_ros == true ]; then
+	sudo apt remove ros-$ros_distro-* && sudo apt autoremove
 fi
 
+exit
 
 # ******** Install Intel Realsense SDK and tools ********
 
 
-# ******** First, install the Realsense SDK ********
-if [ true ]; then
+# Install the Realsense SDK
+if [ $install_realsense == true ]; then
 
-	if [ false ]; then
-		# **** Option #1: Build from source ****
-		
-		
-		# Install prequisites and dependencies
-		file=$cwd/other_installs/librealsense-2.50.0.zip
-		if [ ! -f "$file" ]; then
-		    echo -e "\e[31m$file is missing in current working directory\e[39m"
-		    exit 1
-		else
-		    echo "librealsense: '$file'"
-		    unzip "$file" -d ~/Downloads
-		fi
-		
-		cd ~/Downloads/librealsense-2.50.0/
-		sudo apt install git libssl-dev libusb-1.0-0-dev libudev-dev pkg-config libgtk-3-dev -y
-		
-		if [ $release == "bionic" ]; then
-			sudo apt-get install libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev at -y
-			./scripts/setup_udev_rules.sh
-	    		echo -e "\e[93mPatching kernel for libealsense. This will take a while.\e[39m"
-			./scripts/patch-realsense-ubuntu-lts.sh
-		else
-			echo "OS version unsupported by librealsense source install. Exiting."
-			exit 1
-		fi
-		
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
+	sudo add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
+	sudo apt install -y librealsense2-dkms librealsense2-utils
+	sudo apt install -y librealsense2-dev librealsense2-dbg
 
-		# Build librealsense
-
-		mkdir build
-		cd build
-
-		# Full version includes examples. Both are optimized for release
-		if [ $ros_type == "full" ]; then
-			cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true -DBUILD_GRAPHICAL_EXAMPLES=false
-		elif [ $ros_type == "basic" ]; then
-			cmake ../ -DCMAKE_BUILD_TYPE=Release
-		else
-		       echo "ros_type must be either 'basic' or 'full'. Check ros.config. Exiting."
-		       exit 1
-		fi
-		
-		# Build nad install
-		sudo make uninstall && make clean && make -j$(nproc) && sudo make install
-	else
-		#**** Option #2: Premade Binaries ****
-		sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
-		sudo apt install librealsense2-dkms librealsense2-utils -y
-		sudo apt install librealsense2-dev librealsense2-dbg -y
-	fi
-
+elif [  $uninstall_realsense == true  ]; then
+	dpkg -l | grep "realsense" | cut -d " " -f 3 | xargs sudo dpkg --purge
 fi
 
+
+# Install the Realsense SDK
+if [ $install_realsense_ros == true ]; then
+	
+fi
 
 
 if false; then
