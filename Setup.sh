@@ -247,5 +247,7 @@ if true; then
 	
 	. install/setup.bash
 	
+	sudo chmod 666 /dev/ttyUSB0 # Permissions to use USB device for RPLidar
+	
 fi
 
