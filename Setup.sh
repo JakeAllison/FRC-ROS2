@@ -8,11 +8,11 @@ is_jetson=false
 build_realsense_from_source=false
 
 # For testing, only runs selected parts of the script
-install_ros=true
+install_ros=false
 uninstall_ros=false
-install_realsense=true
+install_realsense=false
 uninstall_realsense=false
-install_realsense_ros=true
+install_realsense_ros=false
 uninstall_realsense_ros=false
 
 # Get Ubuntu Distro
@@ -211,18 +211,12 @@ if [ $install_realsense_ros == true ]; then
 fi
 
 
-if false; then
+if true; then
 	# Create workspace
 
 	mkdir -p ~/ros2_ws/src
-
-
-	# ROS Realsense Dependencies
-	sudo apt install ros-$ros_distro-realsense2-camera
-	sudo apt install ros-$ros_distro-realsense2-description
-
-
-
+	
+	
 	# Copy packages
 	cd $cwd/ros2_ws/src/
 	for D in *; do
@@ -233,24 +227,25 @@ if false; then
 	done
 
 
-	z
+	
 	# Copy supporting packages
 	cd $cwd/supporting_packages/
-	for F in *.tar.gz; do
+	for F in *.zip; do
 	    if [ -f "${F}" ]; then
 		echo "Supporting Package: ${F}"
-		tar -xf "${F}" -C ~/catkin_ws/src
+		unzip "${F}" -d ~/ros2_ws/src
 	    fi
 	done
 
 
 
 	# Install package dependencies and build
-
-	source /opt/ros/$ros_distro/setup.bash
+	
 	cd ~/ros2_ws
 	rosdep install -i --from-path src --rosdistro $ros_distro -y
 	colcon build --symlink-install
-
+	
+	. install/setup.bash
+	
 fi
 
