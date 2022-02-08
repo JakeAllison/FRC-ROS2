@@ -8,11 +8,11 @@ is_jetson=false
 build_realsense_from_source=false
 
 # For testing, only runs selected parts of the script
-install_ros=false
+install_ros=true
 uninstall_ros=false
-install_realsense=false
+install_realsense=true
 uninstall_realsense=false
-install_realsense_ros=false
+install_realsense_ros=true
 uninstall_realsense_ros=false
 
 # Get Ubuntu Distro
