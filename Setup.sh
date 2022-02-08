@@ -12,8 +12,8 @@ install_ros=true
 uninstall_ros=false
 install_realsense=true
 uninstall_realsense=false
-install_ros_realsense=true
-uninstall_ros_realsense=false
+install_realsense_ros=true
+uninstall_realsense_ros=false
 
 # Get Ubuntu Distro
 release=$(lsb_release -cs)  # Get codename
@@ -198,7 +198,7 @@ if [ $install_realsense == true ]; then
 	sudo apt install -y librealsense2-dkms librealsense2-utils
 	sudo apt install -y librealsense2-dev librealsense2-dbg
 
-elif [  $uninstall_realsense == true  ]; then
+elif [ $uninstall_realsense == true  ]; then
 	dpkg -l | grep "realsense" | cut -d " " -f 3 | xargs sudo dpkg --purge
 fi
 
