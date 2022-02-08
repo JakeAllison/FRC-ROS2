@@ -9,9 +9,11 @@ build_realsense_from_source=false
 
 # For testing, only runs selected parts of the script
 install_ros=true
-uninstall_ros=true
-install_realsense=false
+uninstall_ros=false
+install_realsense=true
 uninstall_realsense=false
+install_ros_realsense=true
+uninstall_ros_realsense=false
 
 # Get Ubuntu Distro
 release=$(lsb_release -cs)  # Get codename
@@ -184,7 +186,6 @@ elif [ $uninstall_ros == true ]; then
 	sudo apt remove ros-$ros_distro-* && sudo apt autoremove
 fi
 
-exit
 
 # ******** Install Intel Realsense SDK and tools ********
 
@@ -204,7 +205,9 @@ fi
 
 # Install the ROS wrapper for Realsense
 if [ $install_realsense_ros == true ]; then
-	
+	# ROS Realsense Dependencies
+	sudo apt install ros-$ros_distro-realsense2-camera
+	sudo apt install ros-$ros_distro-realsense2-description
 fi
 
 
