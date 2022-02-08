@@ -206,8 +206,8 @@ fi
 # Install the ROS wrapper for Realsense
 if [ $install_realsense_ros == true ]; then
 	# ROS Realsense Dependencies
-	sudo apt install ros-$ros_distro-realsense2-camera
-	sudo apt install ros-$ros_distro-realsense2-description
+	sudo apt install -y ros-$ros_distro-realsense2-camera
+	sudo apt install -y ros-$ros_distro-realsense2-description
 fi
 
 
