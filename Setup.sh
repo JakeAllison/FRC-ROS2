@@ -8,7 +8,7 @@ is_jetson=false
 build_realsense_from_source=false
 
 # For testing, only runs selected parts of the script
-install_ros=false
+install_ros=true
 uninstall_ros=true
 install_realsense=false
 uninstall_realsense=false
@@ -52,9 +52,16 @@ echo "ROS Type:" $ros_type
 
 
 # Select ROS distro based on OS distro
+# The T/F statements can be changed to select which version of ROS to use
 if [ $release == "focal" ]; then
-       echo "OS is Ubuntu 20.04. Using ROS Galactic."
-       ros_distro="galactic"
+	if true; then
+       	echo "OS is Ubuntu 20.04. Using ROS Galactic."
+       	ros_distro="galactic"
+       else
+       	echo "OS is Ubuntu 20.04. Using ROS Foxy."
+       	ros_distro="foxy"
+       fi
+       	
 elif [ $release == "bionic" ]; then
 	
 	if false; then
@@ -84,11 +91,31 @@ if [  $install_ros == true  ]; then
 	sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 	export LANG=en_US.UTF-8
 	locale  # verify settings
-
-	sudo apt update -y
-	sudo apt install curl gnupg2 lsb-release -y
-	curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-	sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
+	
+	rosdep_install="python_rosdep"
+	
+	# Different distros will have different sourcing methods and packages
+	if [ $ros_distro=="galactic" ]; then
+		rosdep_install="python3-rosdep2"
+		sudo apt install software-properties-common
+		sudo add-apt-repository universe
+		sudo apt update && sudo apt install -y curl gnupg lsb-release
+		sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+		echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+	elif [ $ros_distro=="foxy" ]; then
+		rosdep_install="python3-rosdep2"
+		sudo apt update && sudo apt install -y curl gnupg2 lsb-release
+		sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
+		echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+	elif [ $ros_distro=="eloquent" ]; then
+		sudo apt update && sudo apt install -y curl gnupg2 lsb-release
+		curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+		sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
+	elif [ $ros_distro=="dashing" ]; then
+		sudo apt update && sudo apt install -y curl gnupg2 lsb-release
+		sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
+		echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+	fi
 
 
 	# Install ROS
@@ -105,13 +132,13 @@ if [  $install_ros == true  ]; then
 	       exit 1
 	fi
 
-	sudo apt install ${ros_install} -y
+	sudo apt install -y ${ros_install}
 
 	sudo apt install -y python3-pip
 	pip3 install -U argcomplete
 
 	# Additional stuff
-	sudo apt install -y rsync python-rosdep python3-colcon-common-extensions git
+	sudo apt install -y rsync ${rosdep_install} python3-colcon-common-extensions git
 	sudo rosdep init
 	rosdep update
 
@@ -175,7 +202,7 @@ elif [  $uninstall_realsense == true  ]; then
 fi
 
 
-# Install the Realsense SDK
+# Install the ROS wrapper for Realsense
 if [ $install_realsense_ros == true ]; then
 	
 fi
