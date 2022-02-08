@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Working Directory
+cwd=$PWD
+
 # Config defaults
 ros_domain=0
 ros_type=full
@@ -43,9 +46,6 @@ fi
 
 # Import ROS config
 source ros.config
-
-# Working Directory
-cwd=$PWD
 
 # Display the Config info
 echo "Currernt working directory:" $cwd
@@ -230,17 +230,17 @@ if true; then
 	
 	# Copy supporting packages
 	cd $cwd/supporting_packages/
-	for F in *.zip; do
+	for F in *.tar.xz; do
 	    if [ -f "${F}" ]; then
 		echo "Supporting Package: ${F}"
-		unzip "${F}" -d ~/ros2_ws/src
+		tar -xf "${F}" -C ~/ros2_ws/src
 	    fi
 	done
 
 
 
 	# Install package dependencies and build
-	
+	source /opt/ros/$ros_distro/setup.bash
 	cd ~/ros2_ws
 	rosdep install -i --from-path src --rosdistro $ros_distro -y
 	colcon build --symlink-install
